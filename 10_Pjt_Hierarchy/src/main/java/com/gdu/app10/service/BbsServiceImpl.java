@@ -49,6 +49,7 @@ public class BbsServiceImpl implements BbsService {
 		
 	}
 	
+	@Transactional
 	@Override
 	public int addBbs(HttpServletRequest request) {
 		
@@ -65,19 +66,25 @@ public class BbsServiceImpl implements BbsService {
 		bbsDTO.setTitle(title);
 		bbsDTO.setIp(ip);
 		
-		// 원글 달기
+		// 원글 달기 - 1
 		int addResult = bbsMapper.addBbs(bbsDTO);  // 인수 bbsDTO의 bbsNo 필드 값은 bbs.xml의 addBbs 쿼리문이 실행되면서 채워진다.
-		// addBbs 실행을 통해서 채운 값
-		BBS_NO: AUTO_INCREMENT
-		WRITER : #{writer}
-		TITLE : #{title}
-		IP : #{ip}
-		CREATED_AT : NOW()
-		STATE : 1
-		DEPTH : 0
-		GROUP_NO : 비어 있음
-		GROUP_ORDER : 0
-		// bbsDTO에 저장된 bbsNo값을 GROUP_NO 칼럼으로 저장해야 한다.
+		/*
+		  bbsMapper.addBbs(bbsDTO) 실행을 통해서 DB에 채운 값
+		  
+  		BBS_NO      : AUTO_INCREMENT
+  		WRITER      : #{writer}
+  		TITLE       : #{title}
+  		IP          : #{ip}
+  		CREATED_AT  : NOW()
+  		STATE       : 1
+  		DEPTH       : 0
+  		GROUP_NO    : NULL
+  		GROUP_ORDER : 0
+		*/
+		
+		// 아직 GROUP_NO 칼럼의 값이 비어 있기 때문에, bbsDTO에 저장된 bbsNo값을 GROUP_NO 칼럼으로 저장해야 한다.
+		// 원글 달기 - 2
+		addResult += bbsMapper.addBbsGroupNo(bbsDTO);
 		
 		// 결과 반환
 		return addResult;
@@ -90,7 +97,7 @@ public class BbsServiceImpl implements BbsService {
 		return removeResult;
 	}
 	
-	@Transactional(readOnly=true)  // INSERT,UPDATE,DELETE 중 2개 이상의 쿼리를 실행하는 경우 반드시 추가한다.
+	@Transactional  // INSERT,UPDATE,DELETE 중 2개 이상의 쿼리를 실행하는 경우 반드시 추가한다.
 	@Override
 	public int addReply(HttpServletRequest request) {
 		

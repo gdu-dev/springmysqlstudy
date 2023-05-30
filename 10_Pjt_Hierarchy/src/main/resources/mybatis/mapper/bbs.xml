@@ -19,7 +19,7 @@
      LIMIT #{begin}, #{recordPerPage}
   </select>
 
-  <!-- 원글 달기 -->
+  <!-- 원글 달기 - 1 -->
   <!--
     <insert id="addBbs" useGeneratedKeys="true" keyProperty="bbsNo" parameterType="BbsDTO">
     자동 증가(AUTO_INCREMENT)한 BBS_NO값을 파라미터로 전달한 BbsDTO 객체의 bbsNo 필드에 저장한다.
@@ -43,6 +43,12 @@
       , 0
     )
   </insert>
+  <!-- 원글 달기 - 2 -->
+  <update id="addBbsGroupNo" parameterType="BbsDTO">
+    UPDATE BBS
+       SET GROUP_NO = #{bbsNo}
+     WHERE BBS_NO = #{bbsNo}
+  </update>
 
   <!-- 삭제 -->
   <update id="removeBbs" parameterType="int">
@@ -62,8 +68,7 @@
   <!-- 답글 달기 -->
   <insert id="addReply" parameterType="BbsDTO">  <!-- parameterType="BbsDTO"는 답글을 의미한다. -->
     INSERT INTO BBS(
-        BBS_NO
-      , WRITER
+        WRITER
       , TITLE
       , IP
       , CREATED_AT
@@ -72,11 +77,10 @@
       , GROUP_NO
       , GROUP_ORDER
     ) VALUES (
-        BBS_SEQ.NEXTVAL
-      , #{writer}
+        #{writer}
       , #{title}
       , #{ip}
-      , SYSDATE
+      , NOW()
       , 1
       , #{depth}
       , #{groupNo}
