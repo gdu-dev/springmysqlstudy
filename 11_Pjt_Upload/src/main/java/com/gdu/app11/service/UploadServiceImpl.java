@@ -35,7 +35,6 @@ import com.gdu.app11.mapper.UploadMapper;
 import com.gdu.app11.util.MyFileUtil;
 import com.gdu.app11.util.PageUtil;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import net.coobird.thumbnailator.Thumbnails;
 

@@ -4,7 +4,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -17,14 +16,17 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @MapperScan(basePackages={"com.gdu.app12.mapper"})           // @Mapper가 존재하는 패키지를 작성한다.
 @PropertySource(value={"classpath:application.properties"})  // application.properties 파일의 속성을 읽어 오자!
 @EnableTransactionManagement                                 // 트랜잭션 처리를 허용한다.
 @Configuration
 public class DBConfig {
 
-	@Autowired
-	private Environment env;
+	// field
+	private final Environment env;
 	
 	// HikaryConfig Bean
 	@Bean

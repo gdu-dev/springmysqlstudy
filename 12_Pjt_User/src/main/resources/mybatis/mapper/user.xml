@@ -62,8 +62,7 @@
 
   <insert id="insertUser" parameterType="UserDTO">
     INSERT INTO USER_T (
-        USER_NO
-      , ID
+        ID
       , PW
       , NAME
       , GENDER
@@ -82,8 +81,7 @@
       , AUTOLOGIN_ID
       , AUTOLOGIN_EXPIRED_AT
     ) VALUES (
-        USER_SEQ.NEXTVAL
-      , #{id}
+        #{id}
       , #{pw}
       , #{name}
       , #{gender}
@@ -97,8 +95,8 @@
       , #{detailAddress}
       , #{extraAddress}
       , #{agreecode}
-      , SYSDATE
-      , SYSDATE
+      , NOW()
+      , NOW()
       , NULL
       , NULL
     )
@@ -116,12 +114,12 @@
       , LAST_LOGIN_AT
     ) VALUES (
         #{id}
-      , SYSDATE
+      , NOW()
     )
   </insert>
   <update id="updateUserAccess" parameterType="String">
     UPDATE USER_ACCESS_T
-       SET LAST_LOGIN_AT = SYSDATE
+       SET LAST_LOGIN_AT = NOW()
      WHERE ID = #{id}
   </update>
   <update id="insertAutologin" parameterType="UserDTO">
@@ -140,7 +138,7 @@
     SELECT ID
       FROM USER_T
      WHERE AUTOLOGIN_ID = #{autologinId}
-       AND AUTOLOGIN_EXPIRED_AT > SYSDATE
+       AND AUTOLOGIN_EXPIRED_AT > NOW()
   </select>
 
   
@@ -154,7 +152,7 @@
         #{id}
       , #{email}
       , #{joinedAt}
-      , SYSDATE
+      , NOW()
     )
   </insert>
   <delete id="deleteUser" parameterType="String">
@@ -201,22 +199,23 @@
             , U.AGREECODE
             , U.JOINED_AT
             , U.PW_MODIFIED_AT
-            , SYSDATE
+            , NOW()
          FROM USER_T U LEFT OUTER JOIN USER_ACCESS_T UA
            ON U.ID = UA.ID
-        WHERE MONTHS_BETWEEN(SYSDATE, UA.LAST_LOGIN_AT) >= 12  <!-- 12개월 이상 로그인 이력이 없는 회원 -->
-           OR (MONTHS_BETWEEN(SYSDATE, U.JOINED_AT) >= 12 AND UA.LAST_LOGIN_AT IS NULL))  <!-- 가입일이 12개월 이상 지나고, 로그인 이력이 아예 없는 회원 -->
+        WHERE TIMESTAMPDIFF(MONTH, UA.LAST_LOGIN_AT, NOW()) >= 12  <!-- 12개월 이상 로그인 이력이 없는 회원 -->
+           OR (TIMESTAMPDIFF(MONTH, U.JOINED_AT, NOW()) >= 12 AND UA.LAST_LOGIN_AT IS NULL))  <!-- 가입일이 12개월 이상 지나고, 로그인 이력이 아예 없는 회원 -->
   </insert>
 
   <!-- 휴면처리 2단계 : 1년(12개월) 이상 접속 내역(USER_ACCESS_T의 LAST_LOGIN_AT)이 없는 회원을 회원 테이블에서 삭제하기 -->
   <delete id="deleteUserForSleep">
-    DELETE
-      FROM USER_T
-     WHERE ID IN(SELECT U.ID
-                   FROM USER_T U LEFT OUTER JOIN USER_ACCESS_T UA
-                     ON U.ID = UA.ID
-                  WHERE MONTHS_BETWEEN(SYSDATE, UA.LAST_LOGIN_AT) >= 12
-                     OR (MONTHS_BETWEEN(SYSDATE, U.JOINED_AT) >= 12 AND UA.LAST_LOGIN_AT IS NULL))
+DELETE
+  FROM USER_T
+ WHERE ID IN(SELECT SUB.ID 
+               FROM (SELECT U.ID
+                       FROM USER_T U LEFT OUTER JOIN USER_ACCESS_T UA
+                         ON U.ID = UA.ID
+                      WHERE TIMESTAMPDIFF(MONTH, UA.LAST_LOGIN_AT, NOW()) >= 12
+                         OR (TIMESTAMPDIFF(MONTH, U.JOINED_AT, NOW()) >= 12 AND UA.LAST_LOGIN_AT IS NULL)) SUB)
   </delete>
 
   <!-- 휴면복원 1단계 : 휴면 테이블의 데이터를 회원 테이블에 저장하기 -->
@@ -266,7 +265,5 @@
       FROM SLEEP_USER_T
      WHERE ID = #{id}
   </delete>
-
-
 
 </mapper>

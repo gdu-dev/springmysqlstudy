@@ -10,10 +10,11 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
 
 /*
   google 이메일 보내기
@@ -28,12 +29,13 @@ import org.springframework.stereotype.Component;
          - [생성]      : 16자리 앱 비밀번호 생성
 */
 
+@RequiredArgsConstructor
 @PropertySource(value={"classpath:application.properties"})
 @Component
 public class JavaMailUtil {
 
-  @Autowired
-  private Environment env;
+  // field
+  private final Environment env;
   
   public void sendJavaMail(String to, String title, String content) {  // 받는 사람, 제목, 내용
     

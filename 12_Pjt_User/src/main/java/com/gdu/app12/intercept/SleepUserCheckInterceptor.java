@@ -4,21 +4,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.gdu.app12.domain.SleepUserDTO;
 import com.gdu.app12.mapper.UserMapper;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @Component
 public class SleepUserCheckInterceptor implements HandlerInterceptor {
 
   // 로그인 이전에
   // 휴면 회원인지 확인해서 휴면해제화면으로 이동시키는 인터셉터
   
-  @Autowired
-  private UserMapper userMapper;
+  // field
+  private final UserMapper userMapper;
   
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
