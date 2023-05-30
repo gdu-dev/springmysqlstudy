@@ -15,15 +15,15 @@ import com.gdu.app10.domain.BbsDTO;
 import com.gdu.app10.mapper.BbsMapper;
 import com.gdu.app10.util.PageUtil;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class BbsServiceImpl implements BbsService {
 
 	// field
-	private BbsMapper bbsMapper;
-	private PageUtil pageUtil;
+	private final BbsMapper bbsMapper;
+	private final PageUtil pageUtil;
 	
 	@Override
 	public void loadBbsList(HttpServletRequest request, Model model) {
@@ -39,14 +39,13 @@ public class BbsServiceImpl implements BbsService {
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("begin", pageUtil.getBegin());
-		map.put("end", pageUtil.getEnd());
+		map.put("recordPerPage", recordPerPage);
 		
 		List<BbsDTO> bbsList = bbsMapper.getBbsList(map);
 		
 		model.addAttribute("bbsList", bbsList);
 		model.addAttribute("beginNo", totalRecord - (page - 1) * recordPerPage);
-		//model.addAttribute("pagination", pageUtil.getPagination(request.getContextPath() + "/bbs/list.do"));  // 아래 코드로 대체 가능합니다.
-		model.addAttribute("pagination", pageUtil.getPagination(request.getRequestURI()));
+		model.addAttribute("pagination", pageUtil.getPagination(request.getContextPath() + "/bbs/list.do"));
 		
 	}
 	
@@ -67,7 +66,18 @@ public class BbsServiceImpl implements BbsService {
 		bbsDTO.setIp(ip);
 		
 		// 원글 달기
-		int addResult = bbsMapper.addBbs(bbsDTO);
+		int addResult = bbsMapper.addBbs(bbsDTO);  // 인수 bbsDTO의 bbsNo 필드 값은 bbs.xml의 addBbs 쿼리문이 실행되면서 채워진다.
+		// addBbs 실행을 통해서 채운 값
+		BBS_NO: AUTO_INCREMENT
+		WRITER : #{writer}
+		TITLE : #{title}
+		IP : #{ip}
+		CREATED_AT : NOW()
+		STATE : 1
+		DEPTH : 0
+		GROUP_NO : 비어 있음
+		GROUP_ORDER : 0
+		// bbsDTO에 저장된 bbsNo값을 GROUP_NO 칼럼으로 저장해야 한다.
 		
 		// 결과 반환
 		return addResult;
@@ -119,20 +129,5 @@ public class BbsServiceImpl implements BbsService {
 		return addReplyResult;
 		
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
 }
